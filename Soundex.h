@@ -5,124 +5,43 @@
 #include <ctype.h>
 #include <string.h>
 
-int LetterList(char letter, int row_value ,int column_value)
-{
-    char SetArray[6][8] = {
-    {'B','F','P','V'},
-    {'C','G','J','K','Q','S','X','Z'},
-    {'D','T'},
-    {'L'},
-    {'M','N'},
-    {'R'}
+char getSoundexCode(char c) {
+    static const char soundexTable[26] = {'0', '1', '2', '3', '0', '1', '2', '0', '0', '2', '2', '4', '5','5', '0', '1', '2', '6', '2', '3', '0', '1', '0', '2', '0', '2'
     };
-
-     for (int i = 0; i < column_value; i++)
-    {
-        if (letter == SetArray[row_value][i])
-        {
-            return 1;
-            break;
-        }
+    c = toupper(c);
+    if (!isalpha(c))
+    {      
+         return '0';
     }
-    return 0;
+     return soundexTable[c - 'A'];
 }
 
-
-char ValueCheck6(char c)
-{
-    int row_value = 5;
-    int column_value = 1;
-    char letter = toupper(c);
-    if (LetterList(letter,row_value,column_value) == 1)
-    {
-        return '6';
-    }
-    else
-    {
-        return '0';
-    }
+void initializeSoundex(char *soundex, char firstCharacter) {
+    soundex[0] = toupper(firstCharacter);
+    soundex[1] = soundex[2] = soundex[3] = '0';
+    soundex[4] = '\0';
 }
 
+int shouldAddToSoundex(char code, char *soundex, int sIndex) {
+    return sIndex < 4 && code != '0' && code != soundex[sIndex - 1];
+}
 
-char ValueCheck5(char c)
-{
-    int row_value = 4;
-    int column_value = 2;
-    char letter = toupper(c);
-    if (LetterList(letter,row_value,column_value) == 1)
-    {
-        return '5';
-    }
-    else
-    {
-        return ValueCheck6(c);
+void processCharacter(const char *name, char *soundex, int *sIndex, int i) {
+    char code = getSoundexCode(name[i]);
+    if (shouldAddToSoundex(code, soundex, *sIndex)) {
+        soundex[*sIndex] = code;
+        (*sIndex)++;
     }
 }
 
 
-char ValueCheck4(char c)
-{
-    int row_value = 3;
-    int column_value = 1;
-    char letter = toupper(c);
-    if (LetterList(letter,row_value,column_value) == 1)
-    {
-        return '4';
-    }
-    else
-    {
-        return ValueCheck5(c);
+void generateSoundex(const char *name, char *soundex) {
+    initializeSoundex(soundex, name[0]);
+    int sIndex = 1;
+    int len = strlen(name);
+    for (int i = 1; i < len; i++) {
+        processCharacter(name, soundex, &sIndex, i);
     }
 }
 
-
-char ValueCheck3(char c)
-{
-    int row_value = 2;
-    int column_value = 2;
-    char letter = toupper(c);
-    if (LetterList(letter,row_value,column_value) == 1)
-    {
-        return '3';
-    }
-    else
-    {
-        return ValueCheck4(c);
-    }
-}
-char ValueCheck2(char c)
-{
-    int row_value = 1;
-    int column_value = 8;
-    char letter = toupper(c);
-    if (LetterList(letter,row_value,column_value) == 1)
-    {
-        return '2';
-    }
-    else
-    {
-        return ValueCheck3(c);
-    }
-}
-
-
-char ValueCheck1(char c)
-{
-    int row_value = 0;
-    int column_value = 4;
-    char letter = toupper(c);
-    if (LetterList(letter,row_value,column_value) == 1)
-    {
-        return '1';
-    }
-    else
-    {
-        return ValueCheck2(c);
-    }
-}
-
-char getSoundexCode(char c){ 
-    return ValueCheck1(c);
-
-}
 #endif // SOUNDEX_H
